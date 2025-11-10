@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { User } from '../types';
+import { User } from '@prisma/client';
 import { login, register } from '../api';
 
 const Logo: React.FC = () => (
@@ -27,21 +27,17 @@ const LandingScreen: React.FC<LandingScreenProps> = ({ onLoginSuccess }) => {
     setIsLoading(true);
 
     try {
-      let result: User | Error | null = null;
+      let result: User | null = null;
       if (isLoginView) {
-        result = login(email, password);
+        result = await login(email, password);
         if (!result) {
             throw new Error("E-mail ou senha inválidos.");
         }
       } else {
-        result = register({ name, email, password, avatarUrl: `https://i.pravatar.cc/150?u=${email}` });
+        result = await register({ name, email, password });
       }
       
-      if (result instanceof Error) {
-        throw result;
-      }
-      
-      onLoginSuccess(result as User);
+      onLoginSuccess(result);
 
     } catch (err: any) {
       setError(err.message || 'Ocorreu um erro.');

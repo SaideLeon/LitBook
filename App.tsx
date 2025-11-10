@@ -14,9 +14,7 @@ import BottomNav from './components/BottomNav';
 import SideNav from './components/SideNav';
 import HomeScreenRightSidebar from './components/HomeScreenRightSidebar';
 import LibraryScreen from './screens/LibraryScreen';
-import { Book, User } from './types';
-import { MOCK_BOOKS } from './data';
-import { initApi, getUserById } from './api';
+import { User } from '@prisma/client';
 
 type Screen = 'home' | 'search' | 'library' | 'profile' | 'community' | 'settings';
 
@@ -28,22 +26,6 @@ interface NavigationState {
 const App: React.FC = () => {
   const [currentUser, setCurrentUser] = useState<User | null>(null);
   const [navigationStack, setNavigationStack] = useState<NavigationState[]>([{ page: 'home' }]);
-  const [isApiReady, setIsApiReady] = useState(false);
-
-  useEffect(() => {
-    const initializeApp = async () => {
-      await initApi();
-      setIsApiReady(true);
-      const loggedInUserId = sessionStorage.getItem('litbook_userId');
-      if (loggedInUserId) {
-        const user = getUserById(parseInt(loggedInUserId, 10));
-        if (user) {
-          setCurrentUser(user);
-        }
-      }
-    };
-    initializeApp();
-  }, []);
 
   const navigate = useCallback((page: string, params?: any) => {
     setNavigationStack(prev => [...prev, { page, params }]);
@@ -70,10 +52,6 @@ const App: React.FC = () => {
     setNavigationStack([{ page: 'home' }]);
   };
 
-  if (!isApiReady) {
-    return <div className="h-dvh w-screen flex items-center justify-center bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">Loading...</div>;
-  }
-  
   if (!currentUser) {
     return <LandingScreen onLoginSuccess={handleLogin} />;
   }
@@ -96,10 +74,10 @@ const App: React.FC = () => {
       case 'settings':
         return <SettingsScreen onLogout={handleLogout} />;
       case 'bookDetail':
-        const book = MOCK_BOOKS.find(b => b.id === currentNavigationState.params.bookId);
+        const book = null; // MOCK_BOOKS.find(b => b.id === currentNavigationState.params.bookId);
         return book ? <BookDetailScreen book={book} goBack={goBack} navigate={navigate} /> : <div>Book not found</div>;
       case 'reader':
-         const readerBook = MOCK_BOOKS.find(b => b.id === currentNavigationState.params.bookId);
+         const readerBook = null; // MOCK_BOOKS.find(b => b.id === currentNavigationState.params.bookId);
         return readerBook ? <ReaderScreen book={readerBook} chapter={currentNavigationState.params.chapter} paragraph={currentNavigationState.params.paragraph} goBack={goBack} /> : <div>Book not found</div>;
       case 'following':
         return <FollowingScreen goBack={goBack} navigate={navigate} />;
