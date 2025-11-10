@@ -11,6 +11,8 @@ import FollowingScreen from './screens/FollowingScreen';
 import NewPublicationScreen from './screens/NewPublicationScreen';
 import CommentsScreen from './screens/CommentsScreen';
 import BottomNav from './components/BottomNav';
+import SideNav from './components/SideNav';
+import HomeScreenRightSidebar from './components/HomeScreenRightSidebar';
 import LibraryScreen from './screens/LibraryScreen';
 import { Book, User } from './types';
 import { MOCK_BOOKS } from './data';
@@ -69,7 +71,6 @@ const App: React.FC = () => {
   };
 
   if (!isApiReady) {
-    // You can show a global loading spinner here
     return <div className="h-dvh w-screen flex items-center justify-center bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">Loading...</div>;
   }
   
@@ -123,7 +124,7 @@ const App: React.FC = () => {
   const showBottomNav = bottomNavScreens.includes(currentPage);
   
   const CommunityFab = () => (
-    <div className="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-lg pointer-events-none h-dvh">
+    <div className="fixed bottom-0 left-0 right-0 z-20 mx-auto max-w-lg pointer-events-none h-dvh lg:hidden">
       <button onClick={() => navigate('newPublication')} className="absolute bottom-24 right-4 flex h-14 w-14 cursor-pointer items-center justify-center overflow-hidden rounded-full bg-primary shadow-lg transition-transform hover:scale-105 active:scale-95 pointer-events-auto">
         <span className="material-symbols-outlined text-3xl text-white">add</span>
       </button>
@@ -131,12 +132,31 @@ const App: React.FC = () => {
   );
 
   return (
-    <div className="h-dvh w-screen text-text-light dark:text-text-dark flex flex-col max-w-lg mx-auto bg-background-light dark:bg-background-dark">
-      <main className={`flex-grow overflow-y-auto ${showBottomNav ? 'pb-20' : ''}`}>
-        {renderScreen()}
-      </main>
-      {currentPage === 'community' && <CommunityFab />}
-      {showBottomNav && <BottomNav activeTab={getActiveTab()} setActiveTab={changeTab} />}
+    <div className="h-dvh w-screen bg-background-light dark:bg-background-dark text-text-light dark:text-text-dark">
+      <div className="mx-auto flex h-dvh max-w-screen-2xl">
+        {/* Side Nav (Desktop) */}
+        <aside className="hidden lg:flex lg:w-64 xl:w-72 shrink-0 flex-col border-r border-zinc-200 dark:border-zinc-800">
+          <SideNav navigate={navigate} changeTab={changeTab} activeTab={getActiveTab()} />
+        </aside>
+        
+        <div className="flex flex-1 min-w-0">
+          {/* Main Content */}
+          <div className="flex flex-col h-dvh flex-1">
+            <main className={`flex-grow overflow-y-auto ${showBottomNav ? 'pb-20' : ''} lg:pb-0`}>
+              {renderScreen()}
+            </main>
+            {currentPage === 'community' && <CommunityFab />}
+            <div className="lg:hidden">
+              {showBottomNav && <BottomNav activeTab={getActiveTab()} setActiveTab={changeTab} />}
+            </div>
+          </div>
+
+          {/* Right Sidebar (Desktop) */}
+          <aside className="hidden xl:block xl:w-80 shrink-0 border-l border-zinc-200 dark:border-zinc-800">
+             {currentPage === 'home' && <HomeScreenRightSidebar />}
+          </aside>
+        </div>
+      </div>
     </div>
   );
 };
